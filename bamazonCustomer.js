@@ -1,7 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var Table = require("cli-table3");
-var {validateBuy} = require("./helpers/validation");
+var Validation = require("./helpers/validation");
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -52,12 +52,15 @@ function purchaseProduct(productData) {
             type: "input",
             message: "How many units of do you want to buy",
             name: "selectedQuantity",
+            validate: (value) => {
+                var validation = new Validation(value);
+                return validation.numberValidate();
+            }
         }
     ]).then(function (answer) {
-        if (validateBuy(answer)) {
             console.log("You selected: " + answer.selectedProduct + " and units to buy: " + answer.selectedQuantity);
-            var query = "SELECT product_name,stock_quantity,price,product_sales FROM products WHERE product_name = ?";
 
+            var query = "SELECT product_name,stock_quantity,price,product_sales FROM products WHERE product_name = ?";
             connection.query(query, answer.selectedProduct, function (err, res) {
                 if (res[0].stock_quantity < answer.selectedQuantity) {
                     //Not enough stock
@@ -70,20 +73,18 @@ function purchaseProduct(productData) {
                     updateStock(answer, res[0], total);
                 }
             })
-        } else {
-            displayStock();
-        }
+        
 
     })
 }
 
 function updateStock(product, res, total) {
-    console.log(product);
+    //console.log(product);
     var newStock = res.stock_quantity - product.selectedQuantity;
     var productToUpdate = product.selectedProduct;
     var newTotal = parseFloat(res.product_sales) + total;
     //console.log(res.product_sales + ' ' + total);
-    console.log(newTotal);
+    //console.log(newTotal);
     connection.query(
         "UPDATE products SET ? WHERE ?",
         [{
