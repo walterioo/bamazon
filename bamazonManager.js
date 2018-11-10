@@ -2,6 +2,7 @@ var mysql = require("mysql");
 var inquirer = require("inquirer");
 var Table = require("cli-table3");
 var colors = require("colors");
+var Validation = require("./helpers/validation");
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -116,10 +117,13 @@ function addInventory(productList) {
         {
             type: "input",
             message: "How many new items will be added to inventory?",
-            name: "inventory"
+            name: "inventory",
+            validate: (value) => {
+                var validation = new Validation(value);
+                return validation.numberValidate();
+            }
         }
     ]).then(answer => {
-        //Gets current stock
         var currentStock = 0;
         var newStock = 0;
         connection.query(
@@ -128,12 +132,12 @@ function addInventory(productList) {
                 currentStock = res[0].stock_quantity;
                 newStock = parseInt(currentStock) + parseInt(answer.inventory);
                 //calls this functon to update the stock
-                updateStock(currentStock, newStock, answer);
+                updateStock(newStock, answer);
             })
     })
 }
 
-function updateStock(current, newStock, answer) {
+function updateStock(newStock, answer) {
     connection.query(
         "UPDATE products SET ? WHERE ?",
         [{
@@ -155,22 +159,38 @@ function newProduct() {
     inquirer.prompt([{
             type: "input",
             message: "Enter the new product name",
-            name: "newProduct"
+            name: "newProduct",
+            validate: (value) => {
+                var validation = new Validation(value);
+                return validation.textValidate();
+            }
         },
         {
             type: "input",
             message: "Enter the new product department",
-            name: "newDept"
+            name: "newDept",
+            validate: (value) => {
+                var validation = new Validation(value);
+                return validation.textValidate();
+            }
         },
         {
             type: "input",
             message: "Enter the new product price",
-            name: "newPrice"
+            name: "newPrice",
+            validate: (value) => {
+                var validation = new Validation(value);
+                return validation.numberValidate();
+            }
         },
         {
             type: "input",
             message: "Enter the new product initial stock",
-            name: "newStock"
+            name: "newStock",
+            validate: (value) => {
+                var validation = new Validation(value);
+                return validation.numberValidate();
+            }
         }
     ]).then(function (answer) {
         connection.query(
@@ -179,14 +199,13 @@ function newProduct() {
                 department_name: answer.newDept,
                 price: answer.newPrice,
                 stock_quantity: answer.newStock
-            }, function (err) {
+            },
+            function (err) {
                 if (err) console.log(err);
-                console.log("New Product successfully created");   
+                console.log("New Product successfully created");
                 managerDisplay();
-            } 
+            }
         )
     })
 }
-
-
 startApp();

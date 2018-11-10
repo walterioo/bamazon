@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var Table = require("cli-table3");
+var {validateBuy} = require("./helpers/validation");
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -51,43 +52,55 @@ function purchaseProduct(productData) {
             type: "input",
             message: "How many units of do you want to buy",
             name: "selectedQuantity",
-            // validate: GOTTA VALIDATE A NUMBER 
         }
     ]).then(function (answer) {
-        console.log("You selected: " + answer.selectedProduct + " and units to buy: " + answer.selectedQuantity);
-        var query = "SELECT product_name,stock_quantity,price FROM products WHERE product_name = ?";
+        if (validateBuy(answer)) {
+            console.log("You selected: " + answer.selectedProduct + " and units to buy: " + answer.selectedQuantity);
+            var query = "SELECT product_name,stock_quantity,price,product_sales FROM products WHERE product_name = ?";
 
-        connection.query(query, answer.selectedProduct, function (err, res) {
-            if (res[0].stock_quantity < answer.selectedQuantity) {
-                //Not enough stock
-                console.log("Not enough stock, please try again.... ");
-                purchaseProduct(productData);
-            } else {
-                var total = answer.selectedQuantity * res[0].price;
-                console.log("Your total for this order is : $" + total +
-                    "\nThank you for your purchase");
-                updateStock(answer,res[0].stock_quantity); 
-            }
-        })
+            connection.query(query, answer.selectedProduct, function (err, res) {
+                if (res[0].stock_quantity < answer.selectedQuantity) {
+                    //Not enough stock
+                    console.log("Not enough stock, please try again.... ");
+                    purchaseProduct(productData);
+                } else {
+                    var total = answer.selectedQuantity * res[0].price;
+                    console.log("Your total for this order is : $" + total +
+                        "\nThank you for your purchase");
+                    updateStock(answer, res[0], total);
+                }
+            })
+        } else {
+            displayStock();
+        }
+
     })
 }
 
-function updateStock(product,stock) {
+function updateStock(product, res, total) {
     console.log(product);
-    var newStock = stock - product.selectedQuantity;
+    var newStock = res.stock_quantity - product.selectedQuantity;
     var productToUpdate = product.selectedProduct;
+    var newTotal = parseFloat(res.product_sales) + total;
+    //console.log(res.product_sales + ' ' + total);
+    console.log(newTotal);
     connection.query(
         "UPDATE products SET ? WHERE ?",
-        [
-            {stock_quantity: newStock},
-            {product_name: productToUpdate}
+        [{
+                stock_quantity: newStock,
+                product_sales: newTotal
+            },
+            {
+                product_name: productToUpdate
+            }
+
         ],
-        function(error) {
+        function (error) {
             if (error) throw error;
             console.log("Stock updated");
             buyAgain();
         }
-    );   
+    );
 }
 
 function buyAgain() {
