@@ -31,5 +31,3 @@
 [Bamazon Manager](https://youtu.be/O_r5ExWK64M)
 
 [Bamazon Supervisor](https://youtu.be/o-34JXnC4eA)
-
-# TEST
