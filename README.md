@@ -1,10 +1,10 @@
 # Bamazon CLI Shop
 
-## Node Amazon Clone
+### Node Amazon clone
 
 # Description 
 
-### Bamazon is made entirely in node, it's compossed of three different apps: 
+### Bamazon is made entirely in in JS and run in NodeJS, it's compossed of three different apps: 
 
 * Customer: Displays the list of available items and handles purchase orders.
 
@@ -15,9 +15,13 @@
 # Instructions
 
 1. Clone this repo
+
 2. npm install to insall required packages
-3. Run squema.sql and seed.sql
+
+3. Run squema.sql and seed.sql in MySQLWorkbench or equivalent
+
 4. Start MAMP server or equivalent
+
 3. Run in node the app of you choosing
 
 # Video
