@@ -73,8 +73,6 @@ function purchaseProduct(productData) {
                     updateStock(answer, res[0], total);
                 }
             })
-        
-
     })
 }
 
@@ -94,7 +92,6 @@ function updateStock(product, res, total) {
             {
                 product_name: productToUpdate
             }
-
         ],
         function (error) {
             if (error) throw error;
