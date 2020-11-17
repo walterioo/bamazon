@@ -4,7 +4,7 @@
 
 # Description 
 
-### Bamazon is made entirely in in JS and run in NodeJS, it's compossed of three different apps: 
+### Bamazon is made entirely in JS and runs in NodeJS, it's compossed of three different apps: 
 
 * Customer: Displays the list of available items and handles purchase orders.
 
